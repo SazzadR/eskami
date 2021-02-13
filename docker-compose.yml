@@ -1,0 +1,64 @@
+version: "3.7"
+
+services:
+    backend:
+        build:
+            context: ./backend/
+            dockerfile: Dockerfile
+        container_name: eskami_backend_1
+        restart: always
+        tty: true
+        working_dir: /var/www
+        volumes:
+            - ./backend:/var/www
+            - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+        networks:
+            - eskami_network
+    frontend:
+        build:
+            context: ./frontend/
+            dockerfile: Dockerfile
+        container_name: eskami_frontend_1
+        restart: always
+        volumes:
+            - ./frontend:/app
+            - /app/node_modules
+        ports:
+            - 3000:3000
+        environment:
+            - CHOKIDAR_USEPOLLING=true
+    webserver:
+        image: nginx:alpine
+        container_name: eskami_webserver_1
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "8000:80"
+        volumes:
+            - ./backend:/var/www
+            - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+        networks:
+            - eskami_network
+    db:
+        image: mysql:5.7
+        container_name: eskami_db_1
+        restart: always
+        tty: true
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: "eskami"
+            MYSQL_ROOT_PASSWORD: "secret"
+        volumes:
+            - mysqldata:/var/lib/mysql
+            - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+        networks:
+            - eskami_network
+
+volumes:
+    mysqldata:
+        driver: local
+
+networks:
+    eskami_network:
+        driver: bridge
