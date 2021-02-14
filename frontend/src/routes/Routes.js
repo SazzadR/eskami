@@ -6,11 +6,13 @@ import Home from  "../components/Home"
 class Routes extends Component {
     render() {
         return (
-            <Switch>
-                <Route path="/">
-                    <Home />
-                </Route>
-            </Switch>
+            <div className="max-w-7xl m-auto">
+                <Switch>
+                    <Route path="/">
+                        <Home />
+                    </Route>
+                </Switch>
+            </div>
         );
     }
 }
