@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Campaign;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class CampaignController extends Controller
@@ -15,6 +16,13 @@ class CampaignController extends Controller
 
     public function store(Request $request)
     {
+        //  $images = $request->get("images");
+        //  foreach ($images as $image) {
+        //     $name = time().'.' . explode('/', explode(':', substr($image, 0, strpos($image, ';')))[1])[1];
+        //     \Image::make($image)->save(public_path('images/').$name);
+        //  }
+
+
         $data = $request->all();
 
         $validator = Validator::make($data, [
@@ -30,6 +38,8 @@ class CampaignController extends Controller
         }
 
         $campaign = Campaign::create($request->all());
+
+        $campaign->createCreatives($request->get('images'));
 
         return response()->json($campaign, 201);
     }

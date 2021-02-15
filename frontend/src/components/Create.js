@@ -11,6 +11,7 @@ class Create extends Component {
         endDate: "",
         totalBudget: 0,
         dailyBudget: 0,
+        images: null,
     };
 
     componentWillUnmount() {
@@ -27,12 +28,47 @@ class Create extends Component {
 
     handleSubmit = (ev) => {
         const { dispatch, history } = this.props;
-        const { name, startDate, endDate, totalBudget, dailyBudget } = this.state;
+        const { name, startDate, endDate, totalBudget, dailyBudget, images } = this.state;
 
         ev.preventDefault();
 
-        dispatch(createCampaign(name, startDate, endDate, totalBudget, dailyBudget, () => history.push("/")));
+        dispatch(createCampaign(name, startDate, endDate, totalBudget, dailyBudget, images, () => history.push("/")));
     };
+
+    handleCreativeUpload = (ev) => {
+        const counter = ev.target.files.length;
+        const outputDiv = window.document.getElementById("preview");
+        const images = [];
+
+        for (let i = 0; i < counter; i++) {
+            const reader = new FileReader();
+
+            reader.onload = (ev) => {
+                const image = ev.target.result;
+                const imageElement = window.document.createElement("img");
+                imageElement.setAttribute("src", image);
+                imageElement.setAttribute("class", "border border-black");
+                outputDiv.appendChild(imageElement);
+
+                images.push(image);
+            };
+
+            reader.readAsDataURL(ev.target.files[i]);
+
+            this.setState({
+                images: images,
+            });
+        }
+    };
+
+    /* handleCreativeUpload = (ev) => {
+        const files = ev.target.files || ev.dataTransfer.files;
+        if (!files.length) {
+            return;
+        }
+
+        this.createImage(files);
+    }; */
 
     render() {
         const { errors } = this.props;
@@ -42,7 +78,7 @@ class Create extends Component {
             <div className="py-4 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 pr-10 lg:px-8">
                 <h2 className="text-2xl font-bold">Create Campaign</h2>
 
-                <div className="mt-8 max-w-md">
+                <div className="mt-8">
                     {errors.length > 0 &&
                         <ul className="text-red-600 mb-4 list-decimal">
                         {errors.map((error, index) => {
@@ -54,7 +90,9 @@ class Create extends Component {
                     }
 
                     <form onSubmit={this.handleSubmit}>
-                        <div className="grid grid-cols-1 gap-6">
+                        <div className="grid grid-cols-2 gap-6">
+
+                            <div className="grid grid-cols-1 gap-6">
                             <label className="block">
                                 <span className="text-gray-700">Name</span>
                                 <input
@@ -107,9 +145,24 @@ class Create extends Component {
                                     onChange={this.handleChange}
                                 />
                             </label>
+                            <label className="block">
+                                <span className="text-gray-700">Creative Uploads</span>
+                                <input
+                                    type="file"
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                    accept=".png, .jpg, .jpeg"
+                                    multiple={true}
+                                    onChange={this.handleCreativeUpload}
+                                />
+                            </label>
                             <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">
                                 Submit
                             </button>
+                        </div>
+
+                            <div>
+                                <div id="preview" className="grid grid-cols-3 gap-2" />
+                            </div>
                         </div>
                     </form>
                 </div>

@@ -50,7 +50,7 @@ export const getCampaignsFailed = (errors) => {
     };
 };
 
-export const createCampaign = (name, startDate, endDate, totalBudget, dailyBudget, onSuccess = () => "") => (dispatch) => {
+export const createCampaign = (name, startDate, endDate, totalBudget, dailyBudget, images, onSuccess = () => "") => (dispatch) => {
     dispatch(createCampaignRequested());
 
     axios.post("http://127.0.0.1:8000/api/campaigns/", {
@@ -59,6 +59,7 @@ export const createCampaign = (name, startDate, endDate, totalBudget, dailyBudge
         end_date: endDate,
         total_budget: totalBudget,
         daily_budget: dailyBudget,
+        images: images,
     })
         .then((response) => {
             dispatch(createCampaignSucceed());
