@@ -13,11 +13,11 @@ $ cd eskami
 ```
 - Run database migration
 ```
-docker-compose exec backend php artisan migrate
+$ docker-compose exec backend php artisan migrate
 ```
 - Seed database with fake data (optional)
 ```
-docker-compose exec backend php artisan db:seed
+$ docker-compose exec backend php artisan db:seed
 ```
 - To run the application in development mode with react's hot module reload run
 ```
