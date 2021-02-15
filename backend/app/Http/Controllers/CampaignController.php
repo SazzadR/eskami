@@ -39,12 +39,16 @@ class CampaignController extends Controller
 
     public function show(Campaign $campaign)
     {
-        return $campaign;
+        return $campaign->load('creatives');
     }
 
     public function update(Request $request, Campaign $campaign)
     {
-        $campaign = Campaign::update($request->all());
+        $updated = $campaign->update($request->all());
+
+        $campaign->creatives()->delete();
+
+        $campaign->createCreatives($request->get('images'));
 
         return response()->json($campaign, 200);
     }

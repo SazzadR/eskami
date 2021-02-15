@@ -2,22 +2,45 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 
-import { createCampaign, resetCreateCampaign } from "../redux/ducks/campaigns";
+import { getCampaign, resetEditCampaign, updateCampaign } from "../redux/ducks/campaigns";
 
-class Create extends Component {
+class Edit extends Component {
     state = {
+        id: "",
         name: "",
         startDate: "",
         endDate: "",
         totalBudget: 0,
         dailyBudget: 0,
         images: null,
-    };
+    }
+
+    componentDidMount() {
+        const { dispatch } = this.props;
+
+        dispatch(getCampaign(this.props.match.params.id));
+    }
 
     componentWillUnmount() {
         const { dispatch } = this.props;
 
-        dispatch(resetCreateCampaign());
+        dispatch(resetEditCampaign());
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+        if (prevState.id !== nextProps.campaign.id) {
+            return {
+                id: nextProps.campaign.id,
+                name: nextProps.campaign.name,
+                startDate: nextProps.campaign.startDate,
+                endDate: nextProps.campaign.endDate,
+                totalBudget: nextProps.campaign.totalBudget,
+                dailyBudget: nextProps.campaign.dailyBudget,
+                images: nextProps.campaign.images,
+            }
+        }
+
+        return null;
     }
 
     handleChange = (ev) => {
@@ -28,16 +51,17 @@ class Create extends Component {
 
     handleSubmit = (ev) => {
         const { dispatch, history } = this.props;
-        const { name, startDate, endDate, totalBudget, dailyBudget, images } = this.state;
+        const { id, name, startDate, endDate, totalBudget, dailyBudget, images } = this.state;
 
         ev.preventDefault();
 
-        dispatch(createCampaign(name, startDate, endDate, totalBudget, dailyBudget, images, () => history.push("/")));
+        dispatch(updateCampaign(id, name, startDate, endDate, totalBudget, dailyBudget, images, () => history.push("/")));
     };
 
     handleCreativeUpload = (ev) => {
         const counter = ev.target.files.length;
         const outputDiv = window.document.getElementById("preview");
+        console.log(outputDiv)
         const images = [];
 
         for (let i = 0; i < counter; i++) {
@@ -62,28 +86,15 @@ class Create extends Component {
     };
 
     render() {
-        const { errors } = this.props;
-        const { name, startDate, endDate, totalBudget, dailyBudget } = this.state;
+        const { name, startDate, endDate, totalBudget, dailyBudget, images } = this.state;
+        const { history } = this.props;
 
         return (
             <div className="py-4 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 pr-10 lg:px-8">
-                <h2 className="text-2xl font-bold">Create Campaign</h2>
+                <form onSubmit={this.handleSubmit}>
+                    <div className="grid grid-cols-2 gap-6">
 
-                <div className="mt-8">
-                    {errors.length > 0 &&
-                        <ul className="text-red-600 mb-4 list-decimal">
-                        {errors.map((error, index) => {
-                            return (
-                                <li key={index}>{error}</li>
-                            );
-                        })}
-                    </ul>
-                    }
-
-                    <form onSubmit={this.handleSubmit}>
-                        <div className="grid grid-cols-2 gap-6">
-
-                            <div className="grid grid-cols-1 gap-6">
+                        <div className="grid grid-cols-1 gap-6">
                             <label className="block">
                                 <span className="text-gray-700">Name</span>
                                 <input
@@ -146,28 +157,45 @@ class Create extends Component {
                                     onChange={this.handleCreativeUpload}
                                 />
                             </label>
-                            <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded">
-                                Submit
+                            {images &&
+                            <label className="block">
+                                <div className="grid grid-cols-3 gap-2">
+                                    {images.map((image, index) => {
+                                        return <img key={index} src={`http://127.0.0.1:8000/${image}`} alt="" />
+                                    })}
+                                </div>
+                            </label>
+                            }
+                            <button
+                                type="submit"
+                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                            >
+                                Update
+                            </button>
+                            <button
+                                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
+                                onClick={() => history.push("/")}
+                            >
+                                Cancel
                             </button>
                         </div>
 
-                            <div>
-                                <div id="preview" className="grid grid-cols-3 gap-2" />
-                            </div>
+                        <div>
+                            <div id="preview" className="grid grid-cols-3 gap-2" />
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         );
     }
 }
 
 const mapStateToProps = (state) => {
-    const { campaigns } = state;
+    const { campaigns: { currentCampaign } } = state;
 
     return {
-        errors: campaigns.errors["create"]
+        campaign: currentCampaign,
     };
 };
 
-export default withRouter(connect(mapStateToProps)(Create));
+export default withRouter(connect(mapStateToProps)(Edit));

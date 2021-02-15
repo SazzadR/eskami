@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 
 import Modal from "./common/modal/Modal";
 import { getCampaigns, openCreativesModal, closeCreativesModal } from "../redux/ducks/campaigns";
+import { Link } from "react-router-dom";
 
 class Home extends Component {
     componentDidMount() {
@@ -82,7 +83,11 @@ class Home extends Component {
                                             </div>
                                         </td>
                                         <td className={`px-6 py-4 whitespace-no-wrap ${!isLastRow ? " border-b border-gray-500" : ""}`}>
-                                            <div className="text-sm leading-5 text-blue-900">{campaign.name}</div>
+                                            <div className="text-sm leading-5 text-blue-500 underline">
+                                                <Link to={`/campaign/${campaign.id}`}>
+                                                    {campaign.name}
+                                                </Link>
+                                            </div>
                                         </td>
                                         <td className={`px-6 py-4 whitespace-no-wrap text-blue-900 text-sm leading-5 ${!isLastRow ? " border-b border-gray-500" : ""}`}>
                                             {campaign.start_date}
