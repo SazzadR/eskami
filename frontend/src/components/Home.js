@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
-import { getCampaigns } from "../redux/ducks/campaigns";
+import Modal from "./common/modal/Modal";
+import { getCampaigns, openCreativesModal, closeCreativesModal } from "../redux/ducks/campaigns";
 
 class Home extends Component {
     componentDidMount() {
@@ -9,6 +10,18 @@ class Home extends Component {
 
         dispatch(getCampaigns());
     }
+
+    openCreativesModal = (campaign) => {
+        const { dispatch } = this.props;
+
+        dispatch(openCreativesModal(campaign));
+    };
+
+    handleCreativeModalClose = (campaign) => {
+        const { dispatch } = this.props;
+
+        dispatch(closeCreativesModal(campaign));
+    };
 
     render() {
         const { isLoading, campaigns } = this.props;
@@ -52,7 +65,7 @@ class Home extends Component {
                                 >
                                     Daily Budget
                                 </th>
-                                <th className="px-6 py-3 border-b-2 border-gray-300"></th>
+                                <th className="px-6 py-3 border-b-2 border-gray-300"/>
                             </tr>
                         </thead>
                         <tbody className="bg-white">
@@ -84,11 +97,30 @@ class Home extends Component {
                                             ${campaign.daily_budget}
                                         </td>
                                         <td className={`px-6 py-4 whitespace-no-wrap text-right text-sm leading-5 ${!isLastRow ? " border-b border-gray-500" : ""}`}>
-                                            <button
-                                                className="px-5 py-2 border-blue-500 border text-blue-500 rounded transition duration-300 hover:bg-blue-700 hover:text-white focus:outline-none"
+                                            <Modal
+                                                activator={
+                                                    <button
+                                                        className="px-5 py-2 border-blue-500 border text-blue-500 rounded transition duration-300 hover:bg-blue-700 hover:text-white focus:outline-none"
+                                                        onClick={() => this.openCreativesModal(campaign)}
+                                                    >
+                                                        Creative Preview
+                                                    </button>
+                                                }
+                                                isOpen={campaign.showCreatives}
+                                                onClose={() => this.handleCreativeModalClose(campaign)}
+                                                title={`Creatives for: ${campaign.name}`}
                                             >
-                                                Preview
-                                            </button>
+                                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-8">
+                                                    {campaign.creatives.map((image, index) => {
+                                                        return (
+                                                            <img key={index} src={`http://127.0.0.1:8000/${image.path}`} alt={campaign.name} />
+                                                        );
+                                                    })}
+
+
+                                                </div>
+                                            </Modal>
+
                                         </td>
                                     </tr>
 

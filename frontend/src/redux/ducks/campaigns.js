@@ -10,6 +10,9 @@ const CREATE_CAMPAIGN_SUCCEED = "CREATE_CAMPAIGN_SUCCEED";
 const CREATE_CAMPAIGN_FAILED = "CREATE_CAMPAIGN_FAILED";
 const RESET_CREATE_CAMPAIGN = "RESET_CREATE_CAMPAIGN";
 
+const OPEN_CREATIVE_MODAL = "OPEN_CREATIVE_MODAL";
+const CLOSE_CREATIVE_MODAL = "CLOSE_CREATIVE_MODAL";
+
 // Action creators
 export const getCampaigns = () => (dispatch) => {
     dispatch(getCampaignsRequested());
@@ -110,7 +113,25 @@ export const resetCreateCampaign = () => {
             //
         }
     };
-}
+};
+
+export const openCreativesModal = (campaign) => {
+    return {
+        type: OPEN_CREATIVE_MODAL,
+        payload: {
+            campaignId: campaign.id
+        },
+    };
+};
+
+export const closeCreativesModal = (campaign) => {
+    return {
+        type: CLOSE_CREATIVE_MODAL,
+        payload: {
+            campaignId: campaign.id
+        },
+    };
+};
 
 // Reducers
 const initialState = {
@@ -133,7 +154,11 @@ const campaigns = (state = initialState, actions) => {
             return {
                 ...state,
                 isLoading: false,
-                campaigns: actions.payload.campaigns,
+                campaigns: actions.payload.campaigns.map((campaign) => {
+                    campaign.showCreatives = false;
+
+                    return campaign;
+                }),
             };
         case GET_CAMPAIGNS_FAILED:
             return {
@@ -168,6 +193,27 @@ const campaigns = (state = initialState, actions) => {
                     ...state.errors,
                     create: [],
                 }
+            };
+
+        case OPEN_CREATIVE_MODAL:
+            return {
+                ...state,
+                campaigns: state.campaigns.map((campaign) => {
+                    campaign.showCreatives = false;
+
+                    campaign.showCreatives = campaign.id === actions.payload.campaignId;
+
+                    return campaign;
+                })
+            };
+        case CLOSE_CREATIVE_MODAL:
+            return {
+                ...state,
+                campaigns: state.campaigns.map((campaign) => {
+                    campaign.showCreatives = false;
+
+                    return campaign;
+                })
             };
 
         default:
